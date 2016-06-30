@@ -4,7 +4,12 @@ var express = require("express");
 var app = express();
 app.set("view engine", "ejs");
 
+var connect = require('connect');
+var methodOverride = require('method-override');
+
+
 var PORT = process.env.PORT || 8080; // default port 8080
+
 
 
 var urlDatabase = {
@@ -12,8 +17,11 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(methodOverride('_method'));
 
 
 app.get("/urls", (req, res) => {
@@ -21,6 +29,18 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.delete("/urls/:id", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls");
+});
+
+//   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+//     //look in urlencoded post bodies and delete it
+//     var method = req.body._method
+//     delete req.body._method
+//     return method
+//   }
+// }))
 
 
 app.get("/urls/new", (req, res) => {
@@ -48,7 +68,7 @@ app.post("/urls", (req, res) => {
   var randomCode = generateRandomString();
   urlDatabase[randomCode]=inputURL;
   console.log(urlDatabase);
-  res.redirect("/urls/u/"+randomCode);
+  res.redirect("/urls");
 
 });
 

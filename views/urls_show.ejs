@@ -1,8 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <body>
+  <h1>Short URL: <%= shortURL %> </h1>
 
-<a href="<% urls[shortURL] %>"> <%=urls[shortURL] %> </a>
+  <br>
+
+    <form method="POST" action="/urls/<%= key %>/edit?_method=PUT">
+      <label for="editURL">Edit your URL:</label>
+      <input id="editURL" type="text" name="<%= shortURL%>" placeholder="<%= urls[shortURL] %>" style="width: 300px">
+      <input type="submit" value="Update">
+    </form>
 
 </body>
 </html>
+

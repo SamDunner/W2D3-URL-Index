@@ -1,5 +1,3 @@
-"use strict";
-
 var express = require("express");
 var app = express();
 app.set("view engine", "ejs");
@@ -34,6 +32,16 @@ app.delete("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
+app.put("/urls/:id/edit", (req, res) => {
+  let templateVars = {shortURL: req.params.id,
+                      urls: urlDatabase };
+  urlDatabase[req.params.id]=req.body[req.params.id];
+
+  //console.log(req.body.longURL);
+
+  res.redirect("/urls");
+});
+
 //   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
 //     //look in urlencoded post bodies and delete it
 //     var method = req.body._method
@@ -47,10 +55,16 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.get("/urls/:id", (req, res) => {
+app.get("/urls/:id/edit", (req, res) => {
   let templateVars = { shortURL: req.params.id,
                        urls: urlDatabase };
   res.render("urls_show", templateVars);
+});
+
+app.get("/urls/:id", (req, res) => {
+  let templateVars = { shortURL: req.params.id,
+                       urls: urlDatabase };
+  res.render("urls_edits", templateVars);
 });
 
 app.post("/urls", (req, res) => {

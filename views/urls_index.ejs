@@ -4,17 +4,21 @@
   <% include ../views/partials/_header.ejs %>
   </header>
     <body>
-      <h1> Test </h1>
+      <h1> List of shortened URLs! </h1>
 
     <p> <% for(key in urls) { %> </p>
       <a href="/urls/<%= key %>">
         <%=key %> </a>
 
+      <form method="GET" action="/urls/<%= key %>/edit?">
+        <button type="submit">Edit</button>
+      </form>
+
       <form method="POST" action="/urls/<%= key %>?_method=DELETE">
         <button type="submit">Delete</button>
       </form>
-    <% } %>
 
+    <% } %>
 
 </body>
 </html>

@@ -9,6 +9,9 @@
     <p> <% for(key in urls) { %> </p>
       <a href="/urls/<%= key %>">
         <%=key %> </a>
+        -->
+        <a href="<%= urls[key] %>"> <%= urls[key] %> </a>
+
 
       <form method="GET" action="/urls/<%= key %>/edit?">
         <button type="submit">Edit</button>

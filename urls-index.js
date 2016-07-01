@@ -23,7 +23,8 @@ app.use(methodOverride('_method'));
 
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { shortURL: req.params.id,
+                       urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 

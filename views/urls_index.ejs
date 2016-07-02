@@ -3,16 +3,18 @@
   <head>
     <title>List of URLs</title>
   </head>
-  <body>
-    <header><% include ../views/partials/_header.ejs %> </header>
-    <h1> List of shortened URLs! </h1>
-    <% for(url of urls) { %>
-      <a href="/urls/<%= url.shortURL %>">
-        <%= url.shortURL %> </a>
-        -->
-      <a href="<%= url.longURL %>"> <%= url.longURL %> </a>
 
-      <form method="GET" action="/urls/<%= url.shortURL %>/edit?">
+  <body>
+
+    <header><% include ../views/partials/_header.ejs %></header>
+
+    <h1>List of shortened URLs!</h1>
+    <% for(url of urls) { %>
+      <a href="/urls/<%= url.shortURL %>"><%= url.shortURL %></a>
+        -->
+      <a href="<%= url.longURL %>"><%= url.longURL %></a>
+
+      <form method="GET" action="/urls/<%= url.shortURL %>/edit">
         <button type="submit">Edit</button>
       </form>
 
@@ -21,9 +23,9 @@
       </form>
     <% } %>
 
-      <form method="GET" action="/urls/new?" style="margin-top:4em">
-        <button type="submit">Create a New URL</button>
-      </form>
+    <form method="GET" action="/urls/new" style="margin-top:4em">
+      <button type="submit">Create a New URL</button>
+    </form>
 
   </body>
 </html>

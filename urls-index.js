@@ -1,51 +1,38 @@
-var express = require("express");
-var app = express();
-app.set("view engine", "ejs");
-
-var connect = require('connect');
-var methodOverride = require('method-override');
-
-var PORT = process.env.PORT || 8080; // default port 8080
-
-const MongoClient = require("mongodb").MongoClient;
-const MONGODB_URI = "mongodb://127.0.0.1:27017/url_shortener";
-
+const express = require("express");
+const connect = require("connect");
+const methodOverride = require("method-override");
+const mongodb = require("mongodb");
 const bodyParser = require("body-parser");
+
+const app = express();
+app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride('_method'));
+
+const PORT = process.env.PORT || 8080;
+const MONGODB_URI = "mongodb://127.0.0.1:27017/url_shortener";
+const MongoClient = mongodb.MongoClient;
+
+function generateRandomString() {
+  let randomString = "";
+  let charSet = "abcdefghijklmnopqrstuvwxyz0123456789";
+  for(var i = 0; i < 6; i++) {
+    randomString += charSet.charAt(Math.floor(Math.random() * charSet.length));
+  };
+  return randomString;
+};
 
 let dbInstance;
 
-
 MongoClient.connect(MONGODB_URI, (err, db) => {
-  if (err) {
-    throw err;
-  };
+  if (err) { throw err; }
   console.log(`Successfully connected to DB: ${MONGODB_URI}`);
   dbInstance = db;
 });
 
-app.use(methodOverride('_method'));
-
 app.get("/urls", (req, res) => {
   dbInstance.collection('urls').find().toArray((err, doc) => {
-  let templateVars = {urls: doc};
-  res.render("urls_index", templateVars);
-  });
-});
-
-
-app.delete("/urls/:id", (req, res) => {
-  dbInstance.collection('urls').deleteOne({shortURL:req.params.id},
-                                         (err, doc) => {
-  res.redirect("/urls");
-  });
-});
-
-app.put("/urls/:id/edit", (req, res) => {
-  dbInstance.collection('urls').updateOne({shortURL:req.params.id},
-                                          {$set: {longURL: req.body.newURL}},
-                                          (err, doc) => {
-  res.redirect("/urls");
+    res.render("urls_index", {urls: doc});
   });
 });
 
@@ -53,37 +40,61 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.get("/urls/:id/edit", (req, res) => {
-  dbInstance.collection('urls').findOne({shortURL:req.params.id}, (err, doc) => {
-  res.render("urls_show", doc);
-  });
+app.post("/urls", (req, res) => {
+  dbInstance
+    .collection('urls')
+    .insertOne({shortURL: generateRandomString(),
+                longURL: req.body.URL},
+               (err, doc) => {
+                 res.redirect("/urls");
+               });
+});
+
+app.get("/u/:id", (req, res) => {
+  dbInstance
+    .collection('urls')
+    .findOne({shortURL: req.params.id},
+             (err, doc) => {
+               res.redirect(doc.longURL);
+             });
 });
 
 app.get("/urls/:id", (req, res) => {
-  dbInstance.collection('urls').findOne({shortURL:req.params.id}, (err, doc) => {
-  res.render("urls_edits", doc);
-  });
+  dbInstance
+    .collection('urls')
+    .findOne({shortURL: req.params.id},
+             (err, doc) => {
+               res.render("urls_edits", doc);
+             });
 });
 
-app.post("/urls", (req, res) => {
+app.get("/urls/:id/edit", (req, res) => {
+  dbInstance
+    .collection('urls')
+    .findOne({shortURL: req.params.id},
+             (err, doc) => {
+               res.render("urls_show", doc);
+             });
+});
 
-  function generateRandomString() {
-    let randomString = "";
-    let charSet = "abcdefghijklmnopqrstuvwxyz0123456789";
-      for(var i=0; i < 6; i++) {
-        randomString += charSet.charAt(Math.floor(Math.random() * charSet.length));
-      };
-    return randomString;
-  };
+app.put("/urls/:id", (req, res) => {
+  dbInstance
+    .collection('urls')
+    .updateOne({shortURL: req.params.id},
+               {$set: {longURL: req.body.newURL}},
+               (err, doc) => {
+                 res.redirect("/urls");
+               });
+});
 
-  var inputURL = req.body.URL;
-  var randomCode = generateRandomString();
-    dbInstance.collection('urls').insertOne({shortURL: randomCode, longURL: inputURL},
-                                           (err, doc) => {
-  res.redirect("/urls");
-  });
+app.delete("/urls/:id", (req, res) => {
+  dbInstance
+    .collection('urls')
+    .deleteOne({shortURL: req.params.id}, (err, doc) => {
+      res.redirect("/urls");
+    });
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Server started on port ${PORT}`);
 });

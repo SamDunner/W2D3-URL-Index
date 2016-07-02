@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-  <header>
-  <% include ../views/partials/_header.ejs %>
-  </header>
-    <body>
-      <h1> List of shortened URLs! </h1>
-
-  <% for(url of urls) { %>
+  <head>
+    <title>List of URLs</title>
+  </head>
+  <body>
+    <header><% include ../views/partials/_header.ejs %> </header>
+    <h1> List of shortened URLs! </h1>
+    <% for(url of urls) { %>
       <a href="/urls/<%= url.shortURL %>">
         <%= url.shortURL %> </a>
         -->
-        <a href="<%= url.longURL %>"> <%= url.longURL %> </a>
-
+      <a href="<%= url.longURL %>"> <%= url.longURL %> </a>
 
       <form method="GET" action="/urls/<%= url.shortURL %>/edit?">
         <button type="submit">Edit</button>
       </form>
 
-      <form method="POST" action="/urls/<%= url.shortURL %>?_method=DELETE">
+      <form method="POST" action="/urls/<%= url.shortURL %>?_method=DELETE" style="margin-bottom:1em">
         <button type="submit">Delete</button>
       </form>
-
     <% } %>
 
-</body>
+      <form method="GET" action="/urls/new?" style="margin-top:4em">
+        <button type="submit">Create a New URL</button>
+      </form>
+
+  </body>
 </html>

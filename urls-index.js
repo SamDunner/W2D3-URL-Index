@@ -5,9 +5,12 @@ app.set("view engine", "ejs");
 var connect = require('connect');
 var methodOverride = require('method-override');
 
+const MongoClient = require("mongodb").MongoClient;
+const MONGODB_URI = "mongodb://127.0.0.1:27017/url_shortener";
+
+
 
 var PORT = process.env.PORT || 8080; // default port 8080
-
 
 
 var urlDatabase = {
@@ -19,54 +22,76 @@ var urlDatabase = {
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
+let dbInstance;
+
+MongoClient.connect(MONGODB_URI, (err, db) => {
+  if (err) {
+    throw err;
+  }
+  console.log(`Successfully connected to DB: ${MONGODB_URI}`);
+  dbInstance = db;
+});
+
+
 app.use(methodOverride('_method'));
 
 
 app.get("/urls", (req, res) => {
-  let templateVars = { shortURL: req.params.id,
-                       urls: urlDatabase };
+  dbInstance.collection('urls').find().toArray((err, doc) => {
+  let templateVars = {urls: doc};
   res.render("urls_index", templateVars);
+  });
 });
+
 
 app.delete("/urls/:id", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect("/urls");
+    dbInstance.collection('urls').deleteOne({shortURL:req.params.id}, (err, doc) => {
+    res.redirect("/urls");
+  });
 });
+
+// function remove(db, id, cb) {
+//   let filter = { _id: Mongo.ObjectId(id) };
+//   db.collection("todos").deleteOne(filter, cb);
+//   delete urlDatabase[req.params.id];
+// }
 
 app.put("/urls/:id/edit", (req, res) => {
-  let templateVars = {shortURL: req.params.id,
-                      urls: urlDatabase };
-  urlDatabase[req.params.id]=req.body[req.params.id];
 
-  //console.log(req.body.longURL);
-
-  res.redirect("/urls");
+  dbInstance.collection('urls').updateOne({shortURL:req.params.id},
+                                          {$set: {longURL: req.body.newURL}},
+                                          (err, doc) => {
+    res.redirect("/urls");
+  });
 });
-
-//   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
-//     //look in urlencoded post bodies and delete it
-//     var method = req.body._method
-//     delete req.body._method
-//     return method
-//   }
-// }))
-
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
 app.get("/urls/:id/edit", (req, res) => {
-  let templateVars = { shortURL: req.params.id,
-                       urls: urlDatabase };
-  res.render("urls_show", templateVars);
+  dbInstance.collection('urls').findOne({shortURL:req.params.id}, (err, doc) => {
+  res.render("urls_show", doc);
+  });
 });
 
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id,
-                       urls: urlDatabase };
-  res.render("urls_edits", templateVars);
+    dbInstance.collection('urls').findOne({shortURL:req.params.id}, (err, doc) => {
+      res.render("urls_edits", doc);
+    });
+
 });
+
+// app.get("/urls/:id", (req, res) => {
+//   let templateVars = { shortURL: req.params.id,
+//                        urls: urlDatabase };
+//   res.render("urls_edits", templateVars);
+// });
+
+
+
+
+
 
 app.post("/urls", (req, res) => {
 
@@ -79,19 +104,18 @@ app.post("/urls", (req, res) => {
     return randomString
   }
 
-  var inputURL = req.body.longURL
+  var inputURL = req.body.URL
   var randomCode = generateRandomString();
-  urlDatabase[randomCode]=inputURL;
-  console.log(urlDatabase);
+    dbInstance.collection('urls').insertOne({shortURL: randomCode, longURL: inputURL}, (err, doc) => {
   res.redirect("/urls");
-
+  });
 });
 
-app.get("/u/:shortURL", (req, res) => {
-  let shortURL = {randomCode: req.params.shortURL };
-  let longURL = urlDatabase[shortURL]
-  res.redirect(longURL);
-});
+// app.get("/u/:shortURL", (req, res) => {
+//   let shortURL = {randomCode: req.params.shortURL };
+//   let longURL = urlDatabase[shortURL]
+//   res.redirect(longURL);
+// });
 
 
 
@@ -118,6 +142,4 @@ app.listen(PORT, () => {
 // app.get("/hello", (req, res) => {
 //   res.end("<html><body>Hello <b>World</b></body></html>\n");
 // });
-
-
 

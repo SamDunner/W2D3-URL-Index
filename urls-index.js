@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
 
 const PORT = process.env.PORT || 8080;
-const MONGODB_URI = process.env.MONGODB_URL;
+const MONGODB_URI = process.env.MONGODB_URI;
 const MongoClient = mongodb.MongoClient;
 
 function generateRandomString() {

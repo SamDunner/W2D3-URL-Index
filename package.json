@@ -27,5 +27,8 @@
     "url": "https://github.com/SamDunner/W2D3-URL-Index/issues"
   },
   "homepage": "https://github.com/SamDunner/W2D3-URL-Index#readme",
-  "description": ""
+  "description": "",
+  "engines": {
+    "node": "6.2.2"
+  }
 }

@@ -1,8 +1,9 @@
 {
-  "name": "mongo-file",
+  "name": "dotenv-file",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "node urls-index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -10,6 +11,7 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "connect": "^3.4.1",
+    "dotenv": "^2.0.0",
     "ejs": "^2.4.2",
     "express": "^4.14.0",
     "mongodb": "^2.1.18"

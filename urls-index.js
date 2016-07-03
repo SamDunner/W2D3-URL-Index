@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const connect = require("connect");
 const methodOverride = require("method-override");
@@ -10,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
 
 const PORT = process.env.PORT || 8080;
-const MONGODB_URI = "mongodb://127.0.0.1:27017/url_shortener";
+const MONGODB_URI = process.env.MONGODB_URL;
 const MongoClient = mongodb.MongoClient;
 
 function generateRandomString() {

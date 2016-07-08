@@ -1,7 +1,14 @@
 <meta charset="UTF-8">
 <title>URL Server</title>
 
+<% if (username !== undefined) { %>
+  <%= "Current User: " + username %>
+  <form action="/logout" method="POST">
+  <input type ="submit" value="Log Out">
+  </form>
+<% } else { %>
   <form method="POST" action="/login">
         <input type="submit" value="sign in">
         <input type="text" name="username" placeholder="username">
   </form>
+<% } %>

@@ -62,6 +62,11 @@ app.post("/login", (req, res) => {
   res.redirect("/");
 });
 
+app.post("/logout", (req, res) => {
+  res.clearCookie("username", "/login")
+  res.redirect("/");
+});
+
 app.post("/urls", (req, res) => {
   dbInstance
     .collection('urls')

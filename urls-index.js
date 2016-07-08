@@ -4,11 +4,13 @@ const connect = require("connect");
 const methodOverride = require("method-override");
 const mongodb = require("mongodb");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
+app.use(cookieParser());
 
 const PORT = process.env.PORT || 8080;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -33,12 +35,31 @@ MongoClient.connect(MONGODB_URI, (err, db) => {
 
 app.get("/urls", (req, res) => {
   dbInstance.collection('urls').find().toArray((err, doc) => {
-    res.render("urls_index", {urls: doc});
+    let templateVars = {
+      urls: doc,
+      username: req.cookies["username"]
+    }
+    res.render("urls_index", templateVars);
   });
 });
 
+app.get("/", (req, res) => {
+  let templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render("urls_new", templateVars);
+});
+
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render("urls_new", req.cookies["usernames"]);
+});
+
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username)
+  res.redirect("/");
 });
 
 app.post("/urls", (req, res) => {
@@ -65,7 +86,12 @@ app.get("/urls/:id", (req, res) => {
     .collection('urls')
     .findOne({shortURL: req.params.id},
              (err, doc) => {
-               res.render("urls_edits", doc);
+                let templateVars = {
+                  shortURL: doc.shortURL,
+                  longURL: doc.longURL,
+                  username: req.cookies["username"]
+                }
+                res.render("urls_edits", templateVars);
              });
 });
 
@@ -74,7 +100,12 @@ app.get("/urls/:id/edit", (req, res) => {
     .collection('urls')
     .findOne({shortURL: req.params.id},
              (err, doc) => {
-               res.render("urls_show", doc);
+                let templateVars = {
+                  shortURL: doc.shortURL,
+                  longURL: doc.longURL,
+                  username: req.cookies["username"]
+                }
+               res.render("urls_show", templateVars);
              });
 });
 
